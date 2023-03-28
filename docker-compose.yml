@@ -1,0 +1,141 @@
+version: '3'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.0
+    container_name: musiczookeeper
+    environment:
+      - ZOOKEEPER_CLIENT_PORT=2181
+      - ZOOKEEPER_TICK_TIME=2000
+    networks:
+      - musicnetwork
+  broker:
+    image: confluentinc/cp-kafka:7.3.0
+    container_name: musicbroker
+    ports:
+      - "9092:29092"
+    depends_on:
+      - zookeeper
+    networks:
+      - musicnetwork
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT= zookeeper:2181
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP= PLAINTEXT:PLAINTEXT, PLAINTEXT_INTERNAL:PLAINTEXT
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092, PLAINTEXT_INTERNAL://broker:29092
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
+      - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
+  musicapi1:
+    build: .
+    ports:
+      - "8081:8080"
+    container_name: musicapi1
+    environment:
+      - API_PORT=8081
+    networks:
+      - musicnetwork
+  musicapi2:
+    build: .
+    ports:
+      - "8082:8080"
+    container_name: musicapi2
+    environment:
+      - API_PORT=8082
+    networks:
+      - musicnetwork
+  mongodb:
+    image: 'mongo:latest'
+    container_name: musicmongodb
+    ports:
+      - "2717:27017"
+    volumes:
+      - "/data/configdb/data/db"
+    networks:
+      - musicnetwork
+  nginx:
+    build: ./nginx
+    ports:
+      - "8228:80"
+    container_name: musicnginx
+    networks:
+      - musicnetwork
+    depends_on:
+      - musicapi1
+      - musicapi2
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    container_name: musicprometheus
+    depends_on:
+      - musicapi1
+      - musicapi2
+      - broker
+      - mongodb
+      - userpostmicroservice
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus-data:/prometheus
+    networks:
+      - musicnetwork
+  userpostmicroservice:
+    build: ./userCreate
+    ports:
+      - "3001:3001"
+    container_name: musicuserpost
+    depends_on:
+      - broker
+    networks:
+      - musicnetwork
+  userdeletemicroservice:
+    build: ./userDelete
+    ports:
+      - "3002:3002"
+    container_name: musicuserdelete
+    depends_on:
+      - broker
+    networks:
+      - musicnetwork
+  userupdatemicroservice:
+    build: ./userUpdate
+    ports:
+      - "3003:3003"
+    container_name: musicuserupdate
+    depends_on:
+      - broker
+    networks:
+      - musicnetwork
+  songpostmicroservice:
+    build: ./songCreate
+    ports:
+      - "3004:3004"
+    container_name: musicsongpost
+    depends_on:
+      - broker
+    networks:
+      - musicnetwork
+  songdeletemicroservice:
+    build: ./songDelete
+    ports:
+      - "3005:3005"
+    container_name: musicsongdelete
+    depends_on:
+      - broker
+    networks:
+      - musicnetwork
+  songupdatemicroservice:
+    build: ./songUpdate
+    ports:
+      - "3006:3006"
+    container_name: musicsongupdate
+    depends_on:
+      - broker
+    networks:
+      - musicnetwork
+
+
+volumes:
+  prometheus-data:
+
+networks:
+  musicnetwork:

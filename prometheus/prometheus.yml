@@ -1,0 +1,21 @@
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+
+rule_files:
+  - "alerts.yml"
+
+scrape_configs:
+  - job_name: apiServices
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - "musicapi1:8081"
+          - "musicapi2:8082"
+          - "prometheus:9090"
+
+remote_write:
+  - url: https://prometheus-us-central1.grafana.net/api/prom/push
+    basic_auth:
+      username: hello123
+      password: eyJrIjoiYWJmNTU1NzJjMThmMmJjNjJkOTU1MTljYjFkMzI3NzM4ZWQ1YzI1YSIsIm4iOiJzdHVkZW50c19hcGlfbWV0cmljcyIsImlkIjo4MDE3MTR9
