@@ -1,0 +1,386 @@
+openapi: 3.0.2
+info: 
+  version: 1.0.0
+  title: Music Website
+  description: |
+    This API provides info on music and users can buy music on the site.
+    Users can upload their own music to sell. Users can create an account to buy
+    music.
+paths:
+    # Operations on all users
+  /users:
+    get:
+      summary: Get all users
+      description: Retrieves all users
+      operationId: get-users
+      responses:
+        "200":
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/users"
+    post:
+      summary: Register User
+      description: Post allowing a user to be added to the database by registering an account
+      operationId: post-user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/user"
+      responses:
+        "201":
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/users"
+        "400":
+          description: "Invalid user supplied"
+        "401":
+          description: "Unautharized"
+        "403":
+          description: "Forbidden"
+  # Operations on specific user based on username
+  /users/{username}:
+    get:
+      summary: Get specific user
+      description: Retrieves a specific user based on the username
+      operationId: get-user-by-username
+      parameters:
+        - name: username
+          in: path
+          description: Username
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/user"
+        "404":
+          description: "User not found"
+    put:
+      summary: Update user
+      description: Update a user by username, can only be done by a logged in user
+      operationId: update-user-by-username
+      parameters:
+        - name: username
+          in: path
+          description: Username of user that needs to be updated
+          required: true
+          schema:
+            type: string
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/user"
+      responses:
+        "204":
+          description: "No Content"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/user"
+        "400":
+          description: "Invalid user supplied"
+        "401":
+          description: "Unautharized"
+        "404":
+          description: "User not found"
+    delete:
+      summary: Delete user
+      description: Delete user by username, can only be done by a logged in user
+      operationId: delete-user
+      parameters:
+        - name: username
+          in: path
+          description: Username of user that needs to be deleted
+          required: true
+          schema:
+            type: string
+      security:
+        - basicAuth: []
+      responses:
+        "200":
+          description: "Ok"
+  # Get specific user based on userId
+  /users/{userId}:
+    get:
+      summary: Get specific user
+      description: Retrieves a specific user based on the userId
+      operationId: get-user-by-id
+      parameters:
+        - name: userId
+          in: path
+          description: User Id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/user"
+        "404":
+          description: "User not found"
+  # Operations on all songs
+  /songs:
+    get:
+      summary: Get all songs
+      description: Retrieves all songs
+      operationId: get-songs
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/songs"
+    post:
+      summary: Add a song
+      description: Post allowing song to be added to the database
+      operationId: post-song
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/song"
+      responses:
+        "201":
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/songs"
+        "400":
+          description: "Invalid song supplied"
+        "401":
+          description: "Unautharized"
+        "403":
+          description: "Forbidden"
+  # Operations on specific song
+  /songs/{songName}:
+    get:
+      summary: Get specific song
+      description: Retrieves a specific song based on the songName
+      operationId: get-song-by-name
+      parameters:
+        - name: songName
+          in: path
+          description: Song Name
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/song"
+        "404":
+          description: "Song not found"
+    put:
+      summary: Update song
+      description: Update a song by songName, can only be done by a logged in user
+      operationId: update-song-by-name
+      parameters:
+        - name: songName
+          in: path
+          description: Song name of song that needs to be updated
+          required: true
+          schema:
+            type: string
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/song"
+      responses:
+        "204":
+          description: "No Content"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/song"
+        "400":
+          description: "Invalid song supplied"
+        "401":
+          description: "Unautharized"
+        "404":
+          description: "Song not found"
+    delete:
+      summary: Delete Song
+      description: Delete song by songName, can only be done by a logged in user
+      operationId: delete-song
+      parameters:
+        - name: songName
+          in: path
+          description: Song name of song that needs to be deleted
+          required: true
+          schema:
+            type: string
+      security:
+        - basicAuth: []
+      responses:
+        "200":
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/songs"
+  # Get specific song based on songId
+  /songs/{songId}:
+    get:
+      summary: Get specific song
+      description: Retrieves a specific song based on the songId
+      operationId: get-song-by-id
+      parameters:
+        - name: songId
+          in: path
+          description: Song Id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/song"
+        "404":
+          description: "Song not found"
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    email:
+      description: User email address
+      type: string
+      example: joeMama@example.com
+    streetAddress:
+      description: User street address
+      type: string
+      example: 455 W 600 E
+    cityAddress:
+      description: User city address
+      type: string
+      example: Salt Lake City
+    stateAddress:
+      description: User state address
+      type: string
+      example: UT
+    zipAddress:
+      description: User zip code address
+      type: integer
+      example: 84663
+    address: 
+      description: Address of the user
+      type: object
+      properties:
+        street: 
+          $ref: "#/components/schemas/streetAddress"
+        city: 
+          $ref: "#/components/schemas/cityAddress"
+        state:
+          $ref: "#/components/schemas/stateAddress"
+        zipCode: 
+          $ref: "#/components/schemas/zipAddress"
+    user:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: "Object ID of the user"
+        username:
+          description: User supplied username
+          type: string
+          minLength: 3
+          maxLength: 30
+          example: Hello123
+        password:
+          description: User supplied password
+          type: string
+          format: password
+          minLength: 3
+          example: password
+        firstName:
+          description: User first name
+          type: string
+          minLength: 1
+          example: Joe
+        lastName:
+          description: User last name
+          type: string
+          minLength: 1
+          example: Mama
+        email:
+          $ref: "#/components/schemas/email"
+        userAddress:
+          $ref: "#/components/schemas/address"
+        songsOwned:
+          $ref: "#/components/schemas/songs"
+        songsMade:
+          $ref: "#/components/schemas/songs"
+    song:
+      type: object
+      properties:
+        songId:
+          type: string
+          format: uuid
+          description: "Object ID of the song"
+        songName:
+          description: Name of the song
+          type: string
+          minLength: 1
+          example: Gangam Style
+        artist:
+          description: Name of song artist
+          type: string
+          minLength: 1
+          example: Psy
+        year:
+          description: Year the song came out
+          type: integer
+          minLength: 2
+          example: 2016
+        price:
+          description: Price of the song
+          type: number
+          format: float
+          example: 3.00
+        songFile:
+          description: File containing the song but for now is just a string
+          type: string
+          pattern: \w+\.mp3
+          example: gangamStyle.mp3
+    users:
+      type: array
+      items:
+        $ref: "#/components/schemas/user"
+    songs:
+      type: array
+      items:
+        $ref: "#/components/schemas/song"
